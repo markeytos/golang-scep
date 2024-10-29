@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	stdlog "log"
 	"net/url"
 	"os"
@@ -21,6 +20,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/pkg/errors"
+	"github.com/smallstep/pkcs7"
 	"github.com/smallstep/scep"
 )
 
@@ -204,7 +204,7 @@ func run(cfg runCfg) error {
 	}
 
 	respCert := respMsg.CertRepMessage.Certificate
-	if err := ioutil.WriteFile(cfg.certPath, pemCert(respCert.Raw), 0666); err != nil {
+	if err := os.WriteFile(cfg.certPath, pemCert(respCert.Raw), 0666); err != nil {
 		return err
 	}
 
@@ -334,6 +334,8 @@ func main() {
 		logfmt = "json"
 	}
 
+	pkcs7.ContentEncryptionAlgorithm = pkcs7.EncryptionAlgorithmAES256CBC
+	// pkcs7.KeyEncryptionAlgorithm = pkcs7.OIDEncryptionAlgorithmRSAESOAEP
 	cfg := runCfg{
 		dir:             dir,
 		csrPath:         csrPath,
